@@ -1,0 +1,1261 @@
+\documentclass{article}
+
+\usepackage{parskip}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{tikz} %tracer graphes
+\usepackage{xcolor} %couleurs
+\usepackage{mathrsfs} % symboles stylés
+\usepackage{amsmath} %vecteurs (entre autres)
+\usepackage{stmaryrd} % intervalle d'entiers
+\usepackage{amssymb} % Nécessaire pour \mathbb, les symboles des ensembles
+\usepackage{ulem} %barrer texte 
+\usepackage{cancel} %barrer texte
+\usepackage{amsthm,amsmath} %carré stylé à la fin démo
+\usepackage{mdframed} % Pour les encadrements
+\usepackage{hyperref} % hyperliens pour référencer les sections
+\usepackage{pgfplots} % Package pour tracer des graphiques
+\usepackage{float} % Pour placer les graphes
+\pgfplotsset{compat=1.18} % Version compatible
+\usepgfplotslibrary{polar} % coordonnées polaires
+\usepackage[french]{babel} % pour les guillemets
+
+\renewcommand{\proofname}{Démonstration} % Changer "Proof" en "Démonstration"
+
+\setcounter{tocdepth}{2} % N'affiche que les section et subsection
+\renewcommand{\contentsname}{Table des matières} % Titre personnalisé
+
+% Style de l'encadré pour les définitions
+\newmdenv[
+    linewidth=1pt,
+    roundcorner=5pt,
+    linecolor=black,
+    frametitle={Définition}
+]{definitionbox}
+
+% Style de l'encadré pour les théorèmes
+\newmdenv[
+    linewidth=1pt,
+    roundcorner=5pt,
+    linecolor=black,
+    frametitle={Théorème}
+]{theorembox}
+
+% Style de l'encadré pour les propriétés
+\newmdenv[
+    linewidth=1pt,
+    roundcorner=5pt,
+    linecolor=black,
+    frametitle={Propriété}
+]{propertybox}
+
+% Commande pour la remarque
+\newcommand{\remarque}[1]{%
+    \par\medskip
+    \textbf{\textcolor{black}{Remarque.}} #1%
+    \par\medskip
+}
+
+% Commande pour les corollaires
+\newcommand{\corollaire}[1]{%
+    \par\medskip
+    \textbf{\textcolor{black}{Corollaire.}} #1%
+    \par\medskip
+}
+
+% Commande pour la norme
+\newcommand{\norm}[1]{\left\|#1\right\|}
+
+% Commande pour le produit scalaire
+\newcommand{\dotproduct}[2]{\langle #1, #2 \rangle}
+
+\title{Sur la Longueur d'une Courbe}
+\author{Sylvain Fraresso, Gaël Jean-Albert, \\Titouan Martineau, Thomas Saurel}
+\date{8 Mai 2025}
+
+\begin{document}
+
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+    En géométrie et en analyse, la notion de longueur d’une courbe joue un rôle fondamental. Que ce soit pour mesurer la distance parcourue par un objet, pour calculer le périmètre d'une figure plane, ou encore pour résoudre des problèmes d'optimisation liés aux trajectoires et aux distances, il est essentiel de pouvoir manipuler la longueur des courbes.
+
+    De la Grèce antique à nos jours, le calcul de la longueur des arcs est resté un problème central en mathématiques.Dans la suite de ce document, nous tenterons de formaliser les notions instinctives de courbes et de longueur afin de démontrer le plus rigoureusement possible de nombreux résultats liés à la longueur des courbes. On se concentrera sur les méthodes développées depuis le XVII\textsuperscript{e} siècle issues du calcul infinitésimal.
+
+\section{Résultats préliminaires}
+
+    \subsection{Arc paramétré}
+
+        On s'intéressera dans la suite de ce document à l'étude de courbes dans $\mathbb{R}^n$, il convient donc, dans un premier temps, de définir ce qu'est une courbe, que l'on appellera aussi indifféremment arc. On s'intéressera principalement aux arcs paramétrés, bien qu'ils ne permettent pas de représenter tout ce que l'on pourrait qualifier de \og courbe \fg{} comme par exemple les courbes fractales, on peut néanmoins en tirer de nombreuses propriétés intéressantes.
+
+        \vspace{0.5cm}
+    
+        \begin{definitionbox}[frametitle={Définition 1 : Arc paramétré}]
+            Un \textbf{arc paramétré} (ou \textbf{courbe paramétrée}) $\gamma$ est la donnée d'un intervalle $I \subset \mathbb{R}$ et d'une application $f : I \to \mathbb{R}^n$ continue. On note $\gamma(I) = f(I)$ la trace de l'arc $\gamma$.
+        \end{definitionbox}
+
+        \remarque{Il existe d'autres définitions tout aussi valides, par exemple, on peut considérer qu'un arc se résume à la fonction $f$. On écrira d'ailleurs par la suite $\gamma(t)$ dans la suite pour dénoter $f(t)$ par soucis de simplicité lorsque cela ne crée pas d'ambiguïté.}
+
+        On appelle un arc paramétré $([a;b],f)$ un \textbf{arc simple} lorsque $f$ est injective et on parle de \textbf{courbe de Jordan} lorsque $f$ est injective sur $]a;b[$ et $f(a) = f(b)$. On utilisera aussi dans ce dernier cas le terme de \textbf{courbe fermée} mais celui-ci peut parfois également faire référence au cas où $f(a) = f(b)$ sans la condition d'injectivité.
+
+        Il est important de distinguer les notions d'arc et de \textbf{graphe} d'une fonction, notamment car on s'intéresse souvent à des exemples de courbes dont la trace correspond au graphe d'une fonction (par exemple $\gamma = ([0;1], t \mapsto (t, t^2))$ a pour trace le graphe de la fonction carré sur $[0;1]$). Si, dans le langage courant, arc ou courbe peut faire référence à la trace de ladite courbe, il s'agit, dans le cadre de notre étude, d'objets de natures distinctes.
+    
+
+    \subsection{Arc régulier}
+
+        Lorsque l'on s'intéresse à la longueur des courbes, on souhaite naturellement pouvoir la calculer, or certaines courbes présentent sous cet angle un intérêt particulier. En effet, les courbes \og lisses \fg{} issues de fonctions dérivables ont l'avantage de se comporter presque comme des lignes droites si on prend un intervalle suffisamment petit autour d'un point.
+
+        \vspace{0.5cm}
+
+        \begin{definitionbox}[frametitle={Définition 2 : Arc régulier}]
+            Un arc paramétré $\gamma = (I, f)$ est dit \textbf{régulier} si $f$ est de classe $C^1$ sur $I$ et la dérivée de $f$ ne s'annule pas. On parlera alors également d'\textbf{arc $C^1$}.
+        \end{definitionbox}
+
+        \begin{figure}[h]
+            \centering
+            \begin{tikzpicture}
+                \begin{polaraxis}[
+                    axis equal,
+                    grid = both,
+                    xlabel = {$\theta$},
+                    ylabel = {$\rho$},
+                    legend pos = south east,
+                ]
+                \addplot [domain=0:45,smooth,thick,red] {sqrt(2*cos(2*x))};
+                \addplot [domain=135:225,smooth,thick,red] {sqrt(2*cos(2*x))};
+                \addplot [domain=315:360,smooth,thick,red] {sqrt(2*cos(2*x))};
+                \end{polaraxis}
+            \end{tikzpicture}
+            \caption{La lemniscate de Bernoulli\cite{wikipedia-lemniscate}}
+            \label{fig:lemniscate}
+        \end{figure}
+
+\section{Calcul de longueur}
+
+    \subsection{Longueur d'un arc paramétré}
+
+        Il est aisé de remarquer que, pour obtenir une approximation de la longueur d'un arc, il suffit d'assimiler la trace à une courbe polygonale composée de segments dont on sait calculer la longueur. La précision de cette approximation augmente à mesure que l'on considère des subdivisions plus fines de la courbe. De plus, cette approximation est toujours inférieure ou égale à la réalité étant donné que la courbe polygonale emprunte toujours le plus court chemin (comme montré en \ref{theorem:ligne-droite}) entre ses différents sommets, ce qui n'est pas nécessairement le cas de l'arc.
+
+        \vspace{0.5cm}
+
+        \begin{definitionbox}[frametitle={Définition 3 : Longueur d'un arc paramétré}]
+            Soit $\gamma = ([a; b], f)$ un arc. La \textbf{longueur} de $\gamma$ est $\sup_{\sigma \in \mathscr{S}([a; b])} l(\sigma, f)$, où $\mathscr{S}([a; b])$ est l'ensemble des subdivisions de $[a; b]$ et, si $\sigma = \{t_0, t_1, \dots, t_n\}$ avec $a = t_0 < t_1 < \dots < t_n = b$,  $l(\sigma, f)$ est la longueur de la \textbf{courbe polygonale} dont les sommets sont les points $f(t_i)$ pour $i \in \llbracket 0, n \rrbracket$, c'est-à-dire $l(\sigma, f) = \sum_{i=1}^{n} \norm{f(t_i) - f(t_{i-1})}$.
+        \end{definitionbox}
+
+        \remarque{Lorsque cette borne supérieure existe, on dit que $\gamma$ est \textbf{rectifiable}. Tous les arcs ne sont pas rectifiables comme on le verra par la suite.}
+
+        \vspace{0.5cm}
+
+        \begin{theorembox}[frametitle={Théorème 1 : Arc rectifiable}]
+            Soit $\gamma = ([a;b], f)$ un arc paramétré. Si $f$ est \textbf{dérivable}, de \textbf{dérivée bornée}, sur $[a; b]$, alors $L(\gamma)$ existe, $\gamma$ est rectifiable.
+        \end{theorembox}
+
+        \begin{proof}
+
+            Soit $\gamma = ([a;b], f)$ un arc paramétré dans $\mathbb{R}^d$ avec $f$ dérivable sur $[a;b]$ et $f'$ bornée sur $[a;b]$. $f'$ étant bornée, on a en particulier $\exists M > 0, \forall i \in \llbracket 1, d \rrbracket, \forall x \in [a;b], |f_i'(x)| \leq M$. Soit $\sigma = \{t_0, t_1, \dots, t_n\}$ une subdivision de $[a; b]$. On a 
+            \begin{align*}
+                l(\sigma, f) &= \sum_{i = 1}^{n} \norm{f(t_i) - f(t_{i - 1})} \\
+            \end{align*}
+            Or, $\norm{f(t_i) - f(t_{i - 1})} = \sqrt{(f_1(t_i) - f_1(t_{i - 1}))^2 + \dots + (f_d(t_i) - f_d(t_{i - 1}))^2}$. Les $f_k$ étant dérivables sur $[a;b]$, elles sont continues sur $[a; b]$ et dérivables sur $]a; b[$, on peut donc appliquer le théorème des accroissements finis. Pour tout $k \in \llbracket 1, d \rrbracket$, il existe $c \in ]t_{i-1};t_i[$ tel que $f_k(t_i) - f_k(t_{i - 1}) = f_k'(c)(t_i - t_{i - 1})$, d'où $|f_k(t_i) - f_k(t_{i - 1})| \leq M(t_i - t_{i - 1})$. On a donc,
+
+            \begin{align*}
+                l(\sigma, f) &\leq \sum_{i=1}^{n} M \sqrt{d} (t_i - t_{i - 1}) \\
+                &= M\sqrt{d} \sum_{i=1}^{n} (t_i - t_{i - 1}) \\
+                &= M\sqrt{d} (t_n - t_0) \\
+                &= M \sqrt{d} (b - a)
+            \end{align*}
+
+            Ainsi, $l(\mathscr{S}([a; b]), f)$ est majoré par $M \sqrt{d} (b - a)$, de plus cet ensemble est non vide (on peut considérer la subdivision $\sigma = \{a, b\}$) donc $\sup_{\sigma \in \mathscr{S}([a; b])} l(\sigma, f)$ existe, $\gamma$ est bien rectifiable.
+        \end{proof}
+
+        \corollaire{Si $\gamma = ([a;b], f)$ est régulier, alors, d'après le théorème des bornes de Weierstrass, $f'$ est bornée sur $[a;b]$ donc $\gamma$ est rectifiable.}
+
+        \vspace{0.5cm}
+
+        \begin{propertybox}[frametitle={Proposition 1 : Relation de Chasles}]
+            Soit $\gamma = ([a;b ], f)$ un arc paramétré et $c \in ]a; b[$. On note $\gamma_1 = ([a;c], f|_{[a,c]})$ et $\gamma_2 = ([c;b], f|_{[c;b]})$. Si $\gamma_1$ et $\gamma_2$ sont rectifiables, alors $\gamma$ est rectifiable et $L(\gamma) = L(\gamma_1) + L(\gamma_2)$.
+        \end{propertybox}
+
+        \begin{proof}
+            En gardant les mêmes notations, soit $\sigma = \{t_0, t_1, \dots, t_n\}$ une subdivision de $[a; b]$, on suppose sans perte de généralité que $c \notin \sigma$, on pose alors $\omega = \{t_0, t_1, \dots, t_j, c, t_{j+1}, \dots, t_n\}$, $\omega_1 = \{t_0, \dots, c\}$ et $\omega_2 = \{c, \dots, t_n\}$.
+
+            $\gamma_1$ et $\gamma_2$ étant rectifiables, on a
+            \begin{align*}
+                l(\omega, f) &= l(\omega_1, f) + l(\omega_2, f) \\
+                &= l(\omega_1, f|_{[a;c]}) + l(\omega_2, f|_{[c;b]}) \\
+                &\leq L(\gamma_1) + L(\gamma_2)
+            \end{align*}
+            D'autre part,
+            \begin{align*}
+                l(\sigma, f) &= \sum_{i = 1}^{n} \norm{f(t_i) - f(t_{i - 1})} \\
+                &= l(\omega, f) + \norm{f(t_{j+1}) - f(t_j)} - \norm{f(c) - f(t_j)} - \norm{f(t_{j + 1}) - f(c)}
+            \end{align*}
+
+            Or, $\norm{f(t_{j+1}) - f(t_j)} \leq \norm{f(c) - f(t_j)} + \norm{f(t_{j + 1}) - f(c)}$ (il suffit d'appliquer l'inégalité triangulaire) d'où $l(\sigma, f) \leq l(\omega, f) \leq L(\gamma_1) + L(\gamma_2)$. Ainsi, $\gamma$ rectifiable et $L(\gamma) \leq L(\gamma_1) + L(\gamma_2)$.
+
+            Il nous suffit alors de montrer que $L(\gamma) \geq L(\gamma_1) + L(\gamma_2)$. Soit $\sigma_1 = \{a = t_0, t_1, \dots, t_n = c\}$ et $\sigma_2 = \{c = t_{n}, t_{n+1}, \dots, t_m = b\}$ des subdivisions de $[a;c]$ et $[c;b]$ respectivement. On pose $\omega = \{a=t_0, p, t_1, \dots, t_m=b\}$ une subdivision de $[a;b]$ (on conserve les mêmes valeurs pour les $t_i$). On a alors
+            \begin{align*}
+                l(\sigma_1, f|_{[a;c]}) + l(\sigma_2, f|_{[c;b]}) &= \sum_{i=1}^{n} \norm{f(t_i) - f(t_{i - 1})} + \sum_{j=n+1}^{m} \norm{f(t_j) - f(t_{j - 1})} \\
+                &= \sum_{i=1}^{m} \norm{f(t_i) - f(t_{i - 1})} \\
+                &= l(\omega, f) + \norm{f(t_1) - f(t_0)} \\
+                &\quad - \norm{f(p) - f(t_0)} - \norm{f(t_1) - f(p)} \\
+                &\leq l(\omega, f) \\
+                &\leq L(\gamma)
+            \end{align*}
+            Ainsi, $\sup_{\sigma_1,\sigma_2 \in \mathscr{S}([a;c]) \times \mathscr{S}({[c;b]})} l(\sigma_1, f|_{[a;c]}) + l(\sigma_2, f|_{[c;b]}) \leq L(\gamma)$ d'où $L(\gamma_1) + L(\gamma_2) \leq L(\gamma)$. Finalement, on obtient $L(\gamma) = L(\gamma_1) + L(\gamma_2)$.
+        \end{proof}
+
+        \corollaire{Soit $\gamma = ([a;b],f)$ un arc paramétré. Si $\gamma$ est rectifiable par morceaux (par exemple, si $f$ est $C^1$ par morceaux), alors $\gamma$ est rectifiable.}
+
+    \subsection{Longueur d'un arc régulier}
+
+        On a vu dans la section précédente que les arcs réguliers sont rectifiables mais cela ne nous donne pas de méthode pour calculer leur longueur. Néanmoins, il existe une formule qui se justifie intuitivement par le fait que $f$ se comporte localement comme ses tangentes, qui correspondent à une courbe polygonale approximant la courbe avec un pas infinitésimal.
+
+        \vspace{0.5cm}
+
+        \begin{theorembox}[frametitle={Théorème 2 : Longueur d'un arc régulier}]
+            Soit $\gamma = ([a;b], f)$ un arc régulier, on a $L(\gamma) = \int_{a}^{b} \norm{f'(t)} dt$.
+        \end{theorembox}
+
+        \begin{proof}
+            Soit $\gamma = ([a;b], f)$ un arc régulier, on a donc $f$ de classe $C^1$. On va montrer, dans un premier temps, que $L(\gamma) \leq \int_a^b \norm{f'(t)} dt$.
+
+            Soit $\sigma = \{a = t_0, t_1, \dots, t_n = b\}$ une subdivision de $[a;b]$. Pour tout $i \in \llbracket 1; n \rrbracket$, on sait que $\norm{f'}$ est intégrable sur $[t_{i-1}, t_i]$ car $f$ est $C^1$ donc $f'$ est continue et en particulier $\norm{f'}$ est continue. On a alors,
+
+            \begin{align*}
+                \int_{t_{i - 1}}^{t_i} \norm{f'(t)}dt &\geq \norm{\int_{t_{i-1}}^{t_i} f'(t) dt} &\text{(inégalité triangulaire)} \\
+                &= \norm{f(t_i) - f(t_{i - 1})}
+            \end{align*}
+            D'où
+            \begin{align*}
+                \int_a^b \norm{f'(t)}dt &= \sum_{i=1}^n \int_{t_{i-1}}^{t_i} \norm{f'(t)}dt \\
+                &\geq \sum_{i=1}^{n} \norm{f(t_i) - f(t_{i-1})} \\
+                &= l(\sigma, f)
+            \end{align*}
+            On a bien $L(\gamma) \leq \int_a^b \norm{f'(t)} dt$. Montrons alors l'autre sens de l'inégalité. Pour tout $i \in \llbracket 1;n \rrbracket$, on a
+            \begin{align*}
+                \int_{t_{i-1}}^{t_i} \norm{f'(t)}dt &= \int_{t_{i-1}}^{t_i} \norm{f'(t) + f'(t_{i-1}) - f'(t_{i-1})}dt \\
+                &\leq \int_{t_{i-1}}^{t_i} (\norm{f'(t) - f'(t_{i-1})} + \norm{f'(t_{i-1})})dt \\
+                &= (t_i - t_{i-1})\norm{f'(t_{i-1})} + \int_{t_{i-1}}^{t_i} \norm{f'(t) - f'(t_{i-1})} dt \\
+                &= \norm{(t_i - t_{i-1})f'(t_{i-1})} + \int_{t_{i-1}}^{t_i} \norm{f'(t) - f'(t_{i-1})} dt \\
+                &= \norm{\int_{t_{i-1}}^{t_i} f'(t_{i-1}) dt} + \int_{t_{i-1}}^{t_i} \norm{f'(t) - f'(t_{i-1})} dt \\
+                &\leq \norm{\int_{t_{i-1}}^{t_i} f'(t) dt} + 2 \int_{t_{i-1}}^{t_i} \norm{f'(t) - f'(t_{i-1})} dt \\
+                &= \norm{f(t_i) - f(t_{i-1})} + 2 \int_{t_{i-1}}^{t_i} \norm{f'(t) - f'(t_{i-1})} dt
+            \end{align*}
+
+            La suite de la preuve consiste à montrer que l'on peut, en choisissant une subdivision suffisamment fine, rendre le terme $2 \int_{t_{i-1}}^{t_i} \norm{f'(t) - f'(t_{i-1})} dt$ arbitrairement petit et ainsi obtenir la majoration souhaitée.
+    
+            Comme $f'$ est continue sur un segment, $f'$ est uniformément continue d'où pour tout $\epsilon > 0$, il existe $\delta_{\epsilon} > 0$ tel que pour tout $x, y \in [t_{i-1}, t_i]$, $|x - y| \leq \delta_{\epsilon} \implies \norm{f'(x) - f'(y)} \leq \epsilon$. Supposons que le pas de la subdivision, $p(\sigma) = \max_{i \in \llbracket 1;n \rrbracket} (t_i - t_{i - 1})$, vérifie $p(\sigma) \leq \delta_{\epsilon}$, on a
+    
+            \begin{align*}
+                \int_a^b \norm{f'(t)} dt &= \sum_{i=1}^n \int_{t_{i-1}}^{t_i} \norm{f'(t)}dt \\
+                &\leq \sum_{i=1}^n (\norm{f(t_i) - f(t_{i-1})} + 2 \int_{t_{i-1}}^{t_i} \norm{f'(t) - f'(t_{i-1})} dt) \\
+                &\leq \sum_{i=1}^n (\norm{f(t_i) - f(t_{i-1})} + 2 \epsilon (t_i - t_{i-1})) \\
+                &= 2 \epsilon (b - a) +\sum_{i=1}^n \norm{f(t_i) - f(t_{i-1})} \\
+                &= 2 \epsilon (b - a) + l(\sigma, f)
+            \end{align*}
+            Ainsi, $L(\gamma) \geq \int_a^b \norm{f'(t)} dt$. On a bien $L(\gamma) = \int_a^b \norm{f'(t)} dt$.
+        \end{proof}
+
+        \remarque{En pratique, on utilisera différentes formules selon les cas,
+        \begin{align*}
+            &L(\gamma) = \int_{a}^{b} \sqrt{\sum_{i = 1}^{d} (f_i'(t))^2} dt &\text{(formule générale toujours valable)} \\
+            &L(\gamma) = \int_{a}^{b} \sqrt{1 + \dot y^2} dt &\text{($f(t) = (t, y(t))$)} \\
+            &L(\gamma) = \int_{\alpha}^{\beta} \sqrt{\rho^2(\theta) + (\rho'(\theta))^2} d\theta &\text{($\gamma$ est donnée en coordonnées polaires)}
+        \end{align*}
+
+        On obtient aisément les 2 premières en manipulant la formule du théorème 2. Lorsque la courbe est donnée en coordonnées polaires, on a $x = \rho \cos(\theta)$ et $y = \rho \sin(\theta)$, il suffit alors d'appliquer la première formule avec ces quantités pour obtenir, après simplification, la troisième formule.}
+
+
+    \subsection{Arc géométrique}
+
+        On n'aura pas manqué de remarquer qu'une même trace peut être obtenue à partir de différents arcs paramétrés. Un exemple simple est l'arc $\gamma_1 = ([0;1], t \mapsto (t, t))$ dont la trace peut également être obtenue avec l'arc $\gamma_2 = ([0; 2], t \mapsto (\frac{t}{2}, \frac{t}{2}))$.
+
+        Il faut toutefois rester vigilant, en effet, on s'intéresse aux arcs et non pas à leur trace et, à cet égard, les arcs $([0;2\pi], t \mapsto (\cos(t), \sin(t)))$ et $([0;4\pi], t \mapsto (\cos(t), \sin(t)))$ ne peuvent pas être assimilés, quand bien même ils ont la même trace (le cercle unité). En effet, la deuxième courbe est différente de la première en cela qu'elle parcourt 2 fois le cercle unité, on comprend bien que sa longueur ne peut alors être égale à celle de la première.
+
+        En revanche, il paraît naturel de considérer semblables des arcs qui parcourent le même chemin en sens inverses ou bien à des vitesses différentes. Du point de vue de la longueur, il est intuitif que parcourir un chemin à 1 km/h ou bien le parcourir à l'envers à 3 km/h sur la première moitié puis en accélérant uniformément jusqu'à la fin ne change pas la longueur du chemin. On comprend dès lors qu'on pourra assimiler les arcs que l'on peut obtenir à partir d'une \og reparamétrisation \fg{} d'un autre.
+
+        \vspace{0.5cm}
+
+        \begin{definitionbox}[frametitle={Définition 4 : Arcs $C^k$-équivalents}]
+            2 arcs paramétrés $\gamma_1 = (I, f)$ et $\gamma_2 = (J, g)$ sont \textbf{$C^k$-équivalents} ($k \geq 1$) s'il existe un difféomorphisme\footnote{application bijective, différentiable, avec une application réciproque également différentiable.} $\theta \in C^k(I, J)$ tel que $g \circ \theta = f$. 
+        \end{definitionbox}
+
+        \remarque{Il est aisé de vérifier que l'on a défini ici une relation d'équivalence. Elle est réflexive car l'identité permet de passer de $\gamma$ à $\gamma$, symétrique car si $g \circ \theta = f$, alors $f \circ \theta^{-1} = g$ (et $\theta^{-1}$ est bien un difféomorphisme de classe $C^k$) et enfin transitive car on peut simplement composer les difféomorphismes.}
+        \remarque{Cette notion est utile car elle permet de faire le lien avec la dimension géométrique des arcs et permet de justifier rigoureusement que la longueur d'un arc ne dépend pas de la paramétrisation choisie.}
+
+        \vspace{0.5cm}
+
+        \begin{definitionbox}[frametitle={Définition 5: Arc géométrique}]
+            Un \textbf{arc géométrique} de classe $C^k$ est une \textbf{classe d'équivalence} d'arcs $C^k$-équivalents. La longueur d'un arc géométrique est la longueur d'un de ses représentants.
+        \end{definitionbox}
+
+        \remarque{La longueur d'un arc géométrique est bien définie, en effet, si on considère 2 arcs $\gamma_1 = (I, f)$ et $\gamma_2 = (J, g)$ $C^k$-équivalents, il existe un difféomorphisme $\theta \in C^k(I, J)$ tel que $g \circ \theta = f$. On a alors
+        \begin{align*}
+            L(\gamma_1) = \int_I \norm{f'(t)}dt = \int_I \norm{(g' \circ \theta)(t)} |\theta'(t)| dt = \int_J \norm{g'(s)} ds = L(\gamma_2)
+        \end{align*}
+        }
+
+    \newpage
+
+    \subsection{Précautions}
+
+        \subsubsection{Passage à la limite}
+
+            On pourrait être tentés d'affirmer que, lorsqu'une suite de courbes rectifiables $(\gamma_n)_{n \in \mathbb{N}}$ converge vers une courbe rectifiable $\gamma$, alors $\lim_{n \to \infty} L(\gamma_n) = L(\gamma)$. Il n'en est rien et il est assez simple de trouver des contre-exemples. 
+            
+            Considérons par exemple un carré et son cercle inscrit, il suffit alors de prendre des points sur le cercle et de les relier par des segments orthogonaux pour obtenir une suite de courbes qui convergent vers le cercle mais dont la longueur est constante, c'est celle du carré. On a représenté ci-dessous un découpage possible pour un arc du cercle, le reste se déduit par symétrie.
+
+            Ce résultat provient du fait qu'on ne peut pas toujours intervertir des limites. En général, si les $\gamma_n$ sont juste rectifiables, il s'agit d'intervertir une limite et une borne supérieure ce qui nécessite des conditions supplémentaires comme l'illustre l'exemple du carré. 
+            
+            Dans le cas où les $\gamma_n$ sont réguliers et convergent uniformément vers $\gamma$, on ne peut pas non plus conclure que $\lim_{n \to \infty} L(\gamma_n) = L(\gamma)$. En effet, la convergence uniforme des $\gamma_n$ vers $\gamma$ ne dit rien de la convergence uniforme des ${f_n}'$ qui apparaissent dans l'intégrale.
+
+            \vspace{0.5cm}
+        
+            \begin{figure}[h]
+                \centering
+                \begin{tikzpicture}[scale=2]
+                    % Paramètres du cercle
+                    \def\radius{3} % Rayon du cercle
+                    \def\startangle{0}
+                    \def\endangle{90}
+                    
+                    % Dessin du cercle de référence
+                    \draw[black] (\radius,0) arc (\startangle:\endangle:\radius);
+                    
+                    % Fonction pour dessiner l'approximation en escalier avec angles droits
+                    \newcommand{\escalier}[2]{
+                        \pgfmathsetmacro{\step}{(\endangle-\startangle)/#1} % Pas angulaire
+                        \pgfmathsetmacro{\xcurrent}{\radius*cos(\startangle)} % Point courant
+                        \pgfmathsetmacro{\ycurrent}{\radius*sin(\startangle)}
+                        \foreach \i in {1, ..., #1} {
+                            \pgfmathsetmacro{\angle}{\startangle + \i*\step} % Angle intermédiaire
+                            \pgfmathsetmacro{\xnext}{\radius*cos(\angle)} % Prochain point en x
+                            \pgfmathsetmacro{\ynext}{\radius*sin(\angle)} % Prochain point en y
+                            % Dessin des segments
+                            \draw[#2] (\xcurrent, \ycurrent) -- (\xcurrent, \ynext); % Segment horizontal
+                            \draw[#2] (\xcurrent, \ynext) -- (\xnext, \ynext); % Segment vertical
+                            % Mise à jour dynamique de xcurrent et ycurrent
+                            \global\let\xcurrent=\xnext
+                            \global\let\ycurrent=\ynext
+                        }
+                    }
+                    
+                    \escalier{1}{black}
+                    \escalier{2}{red}
+                    \escalier{8}{orange}
+                    \escalier{16}{green}
+                    
+                \end{tikzpicture}
+                \caption{Transformation du carré en cercle}
+                \label{fig:carre-cercle}
+            \end{figure}
+
+        \subsubsection{Courbes non rectifiables}
+
+            Il peut être difficile, aux premiers abords, d'imaginer des courbes définies sur un intervalle fermé et non rectifiables. Des exemples extrêmes tels que la courbe définie par la fonction de Weierstrass, continue partout mais dérivable nulle part, fonctionneraient mais ils sont difficiles à manipuler. Il existe en fait des fonctions beaucoup plus simples qui vérifient cette propriété. Considérons par exemple la courbe $\gamma = ([0;1], t \mapsto (t, g(t)))$ où $g(t) = t^2 \sin\left(\frac{1}{t^2}\right)$ que l'on prolonge par continuité en 0 par $g(0) = 0$.
+
+            \begin{figure}[h]
+                \centering
+                \begin{tikzpicture}[scale=1.03]
+                    \begin{axis}[
+                        domain=0.01:1, % Évite les problèmes numériques à x=0
+                        samples=200,
+                        axis x line=middle,
+                        axis y line=middle,
+                        xlabel=$x$,
+                        ylabel={$g(x)$},
+                        enlargelimits=true,
+                        grid=major,
+                    ]
+                        \addplot[smooth,blue,thick] {(x^2)*sin(deg(1/(x^2)))};
+                        \addplot[only marks,mark=*,blue] coordinates {(0,0)}; % Valeur en x=0
+                    \end{axis}
+                \end{tikzpicture}
+                \caption{Graphe de $x \mapsto \begin{cases} x^2 \sin\left(\frac{1}{x^2}\right) &\text{si $x \ne 0$} \\ 0 &\text{sinon}\end{cases}$ sur $[0;1]$}
+                \label{fig:courbe-non-rectifiable}
+            \end{figure}
+
+            Comme le montre ce graphique, la courbe oscille de plus en plus vite autour de l'axe des abscisses quand $x$ tend vers 0, cependant cela n'est pas suffisant pour conclure qu'elle n'est pas rectifiable. En effet, il existe des courbes rectifiables présentant un comportement similaire par exemple la courbe définie par la fonction $f(x) = x^2 \sin\left(\frac{1}{x}\right)$ que l'on prolonge par continuité en 0 par $f(0) = 0$. Cette fonction est dérivable sur $[0;1]$ - en 0, on étudie le taux d'accroissement $\lim_{x \to 0} \frac{f(x) - f(0)}{x - 0} = \lim_{x \to 0} x \sin\left(\frac{1}{x}\right) = 0$ - et sa dérivée est bornée, le théorème 1 assure donc que la courbe associée est rectifiable. Prenons garde toutefois à ne pas appliquer la formule ici car $f$ n'est pas $C^1$, l'intégrale associée ne converge d'ailleurs pas.
+
+            Intuitivement, la courbe définie par $f$ oscille de plus en plus rapidement mais la hauteur des oscillations diminuent beaucoup plus vite que leur période ne diminue, là où, dans le cas de la courbe définie par $g$, les oscillations se rapprochent suffisamment vite pour que la somme des longueurs de chacune de ses oscillations diverge. La vitesse des oscillations dépend du comportement de la fonction dans le sinus. Pour cette raison, $\gamma$ n'est pas rectifiable.
+
+            \begin{proof}
+                Pour montrer que $\gamma = ([0;1], f(t) = (t, g(t)))$ n'est pas rectifiable, il nous faut montrer que $\sup_{\sigma \in \mathscr{S}([0; 1])} l(\sigma, g)$ n'existe pas. Une manière de procéder est d'exhiber une suite de subdivisions pour laquelle la longueur diverge vers $+\infty$. Ici, le sinus rend la tâche assez difficile mais on peut grandement simplifier cette expression en considérant une suite où le sinus est toujours égal à 1 ou -1, ce qui revient à prendre des courbes polygonales qui relient les sommets des oscillations entre eux.
+
+                On pose donc $\sigma_n = \{0, t_n, t_{n-1}, \dots, t_0, 1\}$ avec $\forall k \in \llbracket 0; n \rrbracket, t_k = \frac{1}{\sqrt{k\pi+\frac{\pi}{2}}}$, pour tout $n \in \mathbb{N}$. On a alors
+                \begin{align*}
+                    l(\sigma_n, f) &\geq \sum_{k=0}^{n-1} \norm{f(t_{k+1}) - f(t_k)} \\
+                    &= \sum_{k=0}^{n-1} \sqrt{(t_{k+1} - t_k)^2 + (g(t_{k+1}) - g(t_k))^2}
+                \end{align*}
+                La somme que l'on obtient est très complexe mais des équivalents vont nous permettre d'y voir plus clair, pour simplifier les calculs on va considérer les termes indépendamment avant de combiner les résultats. Dans un premier temps, on a
+                \begin{align*}
+                    (t_{k+1} - t_{k})^2 &= \left(\frac{1}{\sqrt{(k+1)\pi + \frac{\pi}{2}}} - \frac{1}{\sqrt{k\pi + \frac{\pi}{2}}}\right)^2 \\
+                \end{align*}
+                On peut appliquer le théorème des accroissements finis avec $x \mapsto \frac{1}{\sqrt{\pi x + \frac{\pi}{2}}}$ à l'intérieur du carré pour obtenir 
+                \begin{align*}
+                    (t_{k+1} - t_{k})^2 &\sim \left(-\frac{1}{2\sqrt{\pi}k^{\frac{3}{2}}}\right)^2 \\
+                    &\sim \frac{1}{4\pi k^3}
+                \end{align*}
+                Le second terme se simplifie de la même manière,
+                \begin{align*}
+                    (g(t_{k+1}) - g(t_k))^2 &= \left({t_{k+1}}^2 \sin\left(\frac{1}{{t_{k+1}}^2}\right) - {t_k}^2 \sin
+                    \left(\frac{1}{{t_k}^2}\right)\right)^2 \\
+                    &= \left(\frac{(-1)^{k+1}}{(k+1)\pi + \frac{\pi}{2}} - \frac{(-1)^k}{k\pi + \frac{\pi}{2}}\right)^2 \\
+                    &= \left((-1)^{k+1} \left(\frac{1}{(k+1)\pi + \frac{\pi}{2}} + \frac{1}{k\pi + \frac{\pi}{2}}\right)\right)^2 \\
+                    &= \left(\frac{1}{(k+1)\pi + \frac{\pi}{2}} + \frac{1}{k\pi + \frac{\pi}{2}}\right)^2 \\
+                    &\sim \left(\frac{2}{\pi k}\right)^2 \\
+                    &\sim \frac{4}{\pi^2 k^2}
+                \end{align*}
+                On peut sommer les équivalents car ils ne s'annulent pas, on obtient
+                \begin{align*}
+                    \sqrt{(t_{k+1} - t_k)^2 + (g(t_{k+1}) - g(t_k))^2} &\sim \sqrt{\frac{1}{2\pi k^3} + \frac{4}{\pi^2 k^2}} \\
+                    &\sim \sqrt{\frac{4}{\pi^2 k^2}} \\
+                    &\sim \frac{2}{\pi k}
+                \end{align*}
+                Comme la série de somme partielle $l(\sigma_n, f)$ est à termes positifs et que son terme général est équivalent à $\frac{2}{\pi k}$, elle est de même nature que la série de terme général $\frac{2}{\pi k}$. Ainsi $\lim_{n \to \infty} l(\sigma_n, f) = +\infty$, $\gamma$ n'est pas rectifiable.
+            \end{proof}
+
+    \newpage
+        
+    \subsection{Exemples}
+
+        Les résultats précédents permettent d'effectuer des calculs avec la plupart des fonctions usuelles. On a ainsi,
+        
+        \begin{enumerate}
+            \item L'astroïde d'équation paramétrique $\begin{pmatrix} x = \cos^3(t) \\ y = \sin^3(t) \end{pmatrix}$ pour $t \in [0; 2\pi]$,
+
+                \vspace{0.5cm}
+            
+                \begin{figure}[h]
+                    \centering
+                    \begin{tikzpicture}[scale=1.2]
+                        \begin{axis}[
+                            axis equal,
+                            xlabel = {$x$},
+                            ylabel = {$y$},
+                            grid = both,
+                            xmin = -1, xmax = 1,
+                            ymin = -1.2, ymax = 1.2,
+                        ]
+                            % Tracé de l'astroïde
+                            \addplot[
+                                domain=0:2*pi, 
+                                samples=200, 
+                                smooth, 
+                                thick, 
+                                blue
+                            ] ({cos(deg(x))^3}, {sin(deg(x))^3});
+                        \end{axis}
+                    \end{tikzpicture}
+                    \caption{Astroïde}
+                    \label{fig:astroide}
+                \end{figure}
+
+                \begin{align*}
+                    L(\gamma) &= 4 \int_{0}^{\frac{\pi}{2}} \sqrt{(-3\sin(t)\cos^2(t))^2 + (3\cos(t)\sin^2(t))^2} dt \\
+                    &= 12 \int_{0}^{\frac{\pi}{2}} \sqrt{\sin^2(t)\cos^4(t) + \cos^2(t)\sin^4(t)} dt \\
+                    &= 12 \int_{0}^{\frac{\pi}{2}} \sqrt{\cos^2(t)\sin^2(t)} dt \\
+                    &= 12 \int_{0}^{\frac{\pi}{2}} \cos(t)\sin(t) dt \\
+                    &= 12 \left[ \frac{1}{2} \sin^2(t) \right]_{0}^{\frac{\pi}{2}} \\
+                    &= 6
+                \end{align*}
+
+            \newpage
+        
+            \item La cardioïde d'équation polaire $\rho = 1 + \cos(\theta)$ pour $\theta \in [0; 2\pi]$,
+
+                \begin{figure}[h]
+                    \centering
+                    \begin{tikzpicture}
+                        \begin{polaraxis}[
+                            axis equal,
+                            grid = both,
+                            xlabel = {$\theta$},
+                            ylabel = {$\rho$},
+                            legend pos = south east,
+                        ]
+                            % Tracé de la cardioïde
+                            \addplot[domain=0:360, samples=200, thick, red] {1 + cos(x)};
+                        \end{polaraxis}
+                    \end{tikzpicture}
+                    \caption{Cardioïde}
+                    \label{fig:cardioide}
+                \end{figure}
+
+                \begin{align*}
+                    L(\gamma) &= \int_{0}^{2\pi} \sqrt{(-\sin(\theta))^2 + (1 + \cos(\theta))^2} d\theta \\
+                    &= \int_{0}^{2\pi} \sqrt{\sin^2(\theta) + 1 + 2\cos(\theta) + \cos^2(\theta)} d\theta \\
+                    &= \sqrt{2} \int_{0}^{2\pi} \sqrt{1 + \cos(\theta)} d\theta \\
+                    &= \sqrt{2} \int_{0}^{2\pi} \sqrt{2\cos^2(\frac{\theta}{2})} d\theta \\
+                    &= 2 \int_{0}^{2\pi} \left|\cos\left(\frac{\theta}{2}\right)\right| d\theta \\
+                    &= 4 \int_{0}^{\pi} |\cos(\Theta)| d\Theta &\text{($\Theta = \frac{\theta}{2})$} \\
+                    &= 8 \int_{0}^{\frac{\pi}{2}} \cos(\Theta) d\Theta &\text{(par symétrie)} \\
+                    &= 8 \left[ \sin(\Theta) \right]_{0}^{\frac{\pi}{2}} \\
+                    &= 8
+                \end{align*}
+
+            \newpage
+
+            \item La spirale logarithmique d'équation polaire $\rho = ae^{b\theta}$ sur $[0;t]$,
+
+                \begin{figure}[h]
+                    \centering
+                    \begin{tikzpicture}
+                        \begin{polaraxis}[
+                            axis equal,
+                            grid=both,
+                            xlabel={$\theta$},
+                            ylabel={$\rho$},
+                            samples=300,
+                        ]
+                            % Tracé de la spirale logarithmique
+                            \addplot[domain=0:deg(4*pi), samples=300, thick, red] {2*exp(0.2*rad(x))};
+                        \end{polaraxis}
+                    \end{tikzpicture}
+                    \caption{Spirale logarithmique pour $a = 2$ et $b = 0.2$ sur $[0;4\pi]$}
+                    \label{fig:spirale-log}
+                \end{figure}
+                
+                \begin{align*}
+                    L(\gamma) &= \int_{0}^{4\pi} \sqrt{\left(\frac{d\rho}{d\theta}\right)^2 + \rho^2} d\theta \\
+                    &= \int_{0}^{4\pi} \sqrt{(abe^{b\theta})^2 + (ae^{b\theta})^2} d\theta \\
+                    &= a\sqrt{1 + b^2} \int_{0}^{4\pi} e^{b\theta} d\theta \\
+                    &= a\sqrt{1 + b^2} \left[ \frac{e^{b\theta}}{b} \right]_{0}^{4\pi} \\
+                    &= \frac{a\sqrt{1 + b^2} (e^{4 b \pi} - 1)}{b} \\
+                    &= \frac{2\sqrt{1 + 0.2^2} (e^{4 \cdot 0.2 \pi} - 1)}{0.2} \\
+                    &\approx 115.700
+                \end{align*}
+
+            \newpage
+
+            \item La sinusoïde sur $[0;2\pi]$,
+
+                \begin{figure}[h]
+                    \centering
+                    \begin{tikzpicture}[scale=1.3]
+                        \begin{axis}[
+                            domain=0:2*pi,
+                            samples=200,
+                            axis x line=middle,
+                            axis y line=middle,
+                            xlabel=$x$,
+                            ylabel={$y$},
+                            enlargelimits=true,
+                            grid=major,
+                        ]
+                            \addplot[smooth,blue,thick] {(sin(deg(x)))};
+                        \end{axis}
+                    \end{tikzpicture}
+                    \caption{Trace de $\gamma = ([0;2\pi], t \mapsto (t, \sin(t)))$}
+                    \label{fig:sinus}
+                \end{figure}
+
+                \begin{align*}
+                    L(\gamma) &= \int_0^{2\pi} \sqrt{1+(\sin'(t))^2} dt \\
+                    &= 4\int_0^{\frac{\pi}{2}} \sqrt{1 + \cos^2(t)} dt \\
+                    &= 4\int_0^1 \frac{\sqrt{1 + u^2}}{\sqrt{1 - u^2}} du &\text{($u = \cos(t)$)} \\
+                    &= 4\int_0^1 \frac{1 + u^2}{\sqrt{1 - u^4}} du \\
+                    &= 4\int_0^1 \frac{1 + \sqrt{v}}{\sqrt{1 - v}} \cdot \frac{v^{-\frac{3}{4}}}{4} dv &\text{($v = u^4)$} \\
+                    &= \int_0^1 \frac{v^{-\frac{3}{4}} + v^{-\frac{1}{4}}}{\sqrt{1 - v}} dv \\
+                    &= \int_0^1 v^{-\frac{3}{4}}(1 - v)^{-\frac{1}{2}} dv + \int_0^1  v^{-\frac{1}{4}} (1 - v)^{-\frac{1}{2}} dv
+                \end{align*}
+
+                On reconnaît ici la fonction bêta ($B$) définie par 
+                \begin{align*}
+                    B(x, y) = \int_0^1 t^{x-1}(1-t)^{y-1} dt
+                \end{align*}
+                que l'on peut lier à la fonction $\Gamma : z \mapsto \int_0^{+\infty} t^{z-1} \text{e}^{-t} dt$ par l'identité $B(x, y) = \frac{\Gamma(x)\Gamma(y)}{\Gamma(x + y)}$. On a alors,
+
+                \begin{align*}
+                    &L(\gamma) = B\left(\frac{1}{4}, \frac{1}{2}\right) + B\left(\frac{3}{4}, \frac{1}{2}\right) \\
+                    &= \frac{\Gamma(\frac{1}{4})\Gamma(\frac{1}{2})}{\Gamma(\frac{3}{4})} + \frac{\Gamma(\frac{3}{4})\Gamma(\frac{1}{2})}{\Gamma(\frac{5}{4})} \\
+                    &= \frac{\Gamma(\frac{1}{4})\Gamma(\frac{1}{2})}{\Gamma(1 - \frac{1}{4})} + \frac{4\Gamma(1 - \frac{1}{4})\Gamma(\frac{1}{2})}{\Gamma(\frac{1}{4})} &(\Gamma(z + 1) = z\Gamma(z)) \\
+                    &= \frac{\Gamma^2(\frac{1}{4})\Gamma(\frac{1}{2})}{\Gamma(\frac{1}{4})\Gamma(1 - \frac{1}{4})} + \frac{4\Gamma(\frac{1}{4})\Gamma(1 - \frac{1}{4})\Gamma(\frac{1}{2})}{\Gamma^2(\frac{1}{4})} \\
+                    &= \frac{\Gamma^2(\frac{1}{4})\Gamma(\frac{1}{2})\sin(\frac{\pi}{4})}{\pi} + \frac{4\pi\Gamma(\frac{1}{2})}{\Gamma^2(\frac{1}{4})\sin(\frac{\pi}{4})} &\text{(formule des compléments)} \\
+                    &= \frac{\Gamma^2(\frac{1}{4})\sqrt{2\pi}}{2\pi} + \frac{8\pi\sqrt{\pi}}{\Gamma^2(\frac{1}{4}) \sqrt{2}} &(\Gamma\left(\frac{1}{2}\right) = \sqrt{\pi}) \\
+                    &= \frac{\Gamma^2(\frac{1}{4})}{\sqrt{2\pi}} + \frac{4\sqrt{2}\pi^{\frac{3}{2}}}{\Gamma^2(\frac{1}{4})} \\
+                    &\simeq 7.64
+                \end{align*}
+                
+        \end{enumerate}
+
+        Les applications ne se limitent cependant pas à des calculs directs, la formule de la longueur d'un arc s'applique à de nombreux problèmes d'optimisation.
+
+        \begin{enumerate}
+            \item Longueur minimale du graphe de la fonction carré sous la normale au point $P(x_0, {x_0}^2)$.
+
+                \begin{figure}[h]
+                    \centering
+                    \begin{tikzpicture}[scale=1]
+                        \begin{axis}[
+                            axis x line=middle, axis y line=middle,
+                            xlabel={$x$}, ylabel={$y$},
+                            samples=100, domain=-2:2,
+                            xmin=-2, xmax=2, ymin=-0.5, ymax=4,
+                            xtick={-2,-1,0,1,2}, ytick={0,1,2,3,4}
+                        ]
+                            % Parabole y = x^2
+                            \addplot[blue, thick] {x^2} node[right] {$\mathcal{P}$};
+                    
+                            % Point P sur la parabole
+                            \def\xp{1} % Coordonnée x de P
+                            \def\yp{\xp^2} % Coordonnée y de P
+                            \addplot[only marks, mark=*, red] coordinates {(\xp,\yp)} node[below] {\Large $P$};
+
+                            % Point Q (intersection de la normale avec la parabole)
+                            \def\xq{-1.5}
+                            \def\yq{\xq^2}
+                            \addplot[only marks, mark=*, red] coordinates {(\xq,\yq)} node[above right] {\Large $Q$};
+                    
+                            % Normale à la parabole en P
+                            \def\slopeT{2*\xp} % Pente de la tangente
+                            \def\slopeN{-1/\slopeT} % Pente de la normale
+                            \addplot[domain=-2:2, dashed, thick] {\slopeN*(x-\xp) + \yp};
+                    
+                            % Arc de parabole entre P et Q
+                            \addplot[domain=\xq:\xp, thick, purple] {x^2};
+                    
+                        \end{axis}
+                    \end{tikzpicture}
+                    \caption{Longueur du graphe de $x \mapsto x^2$ sous la normale au point $P(1, 1)$}
+                    \label{fig:parabole-normale}
+                \end{figure}
+
+                Soit $x > 0$ (le cas $x < 0$ se déduit par symétrie), on note $P = (x_0, {x_0}^2)$ un point sur la parabole $\mathcal{P}$ d'équation $y = x^2$. La tangente à $\mathcal{P}$ en $P$ est $T_P : y = 2x_0x - {x_0}^2$ donc la normale à $\mathcal{P}$ au point $P$ est $N_P : y = -\frac{1}{2x_0}x + {x_0}^2 + \frac{1}{2}$, les intersections de $N_P$ et $\mathcal{P}$ sont alors les points $M = (x, x^2)$ tels que :
+
+                \begin{align*}
+                    &-\frac{1}{2x_0}x + {x_0}^2 + \frac{1}{2} = x^2 \\
+                    \iff& x^2 + \frac{1}{2x_0}x - x_0^2 - \frac{1}{2} = 0 \\
+                    \iff& (x - x_0)(x +x_0 + \frac{1}{2x_0}) = 0 &\text{(on sait que $P \in N_P \cap \mathcal{P})$}
+                \end{align*}
+
+                Il y a donc deux points d'intersection, $P$, d'abscisse $x_0$, et $Q$, d'abscisse $-x_0 - \frac{1}{2x_0}$. La longueur que l'on cherche à minimiser s'écrit donc (on remplace $x_0$ par $x$ pour plus de lisibilité)
+
+                \begin{align*}
+                    L(x) &= \int_{-x - \frac{1}{2x}}^{x} \sqrt{4t^2 + 1} dt \\
+                    &= \int_0^x \sqrt{4t^2 + 1} dt  + \int_0^{x + \frac{1}{2x}} \sqrt{4t^2 + 1} dt
+                \end{align*}
+
+                Le théorème fondamental de l'analyse donne alors
+
+                \begin{align*}
+                    L'(x) &= \sqrt{4x^2 + 1} + \left(1 - \frac{1}{2x^2}\right)\sqrt{4\left(x + \frac{1}{2x}\right)^2  + 1} \\
+                    &= \sqrt{4x^2 + 1} + \left(1 - \frac{1}{2x^2}\right)\sqrt{4x^2 + \frac{1}{2x^2} + 5}
+                \end{align*}
+
+                Comme $L$ est continue et $\lim_{x \to 0} L(x) = \lim_{x \to +\infty} L(x) = +\infty$, L admet un minimum global. On cherche donc les points critiques de $L$ sur $]0;+\infty[$,
+
+                \begin{align*}
+                    &L'(x) = 0 \\
+                    \implies& \sqrt{4x^2 + 1} + \left(1 - \frac{1}{2x^2}\right)\sqrt{4x^2 + \frac{1}{x^2} + 5} = 0 \\
+                    \implies& \sqrt{4x^2 + 1} = \left(\frac{1}{2x^2} - 1\right)\sqrt{4x^2 + \frac{1}{x^2} + 5} \\
+                    \implies& 4x^2 + 1 = \left(\frac{1}{4x^4} - \frac{1}{x^2} + 1\right)\left(4x^2 + \frac{1}{x^2} + 5\right) \\
+                    \implies& 4x^2 + 1 = x^{-2} + \frac{1}{4}x^{-6} + \frac{5}{4}x^{-4} - 4 - x^{-4} - 5x^{-2} + 4x^2 + x^{-2} + 5 \\
+                    \implies& 4x^2 + 1 = 4x^2 + 1 -3x^{-2} + \frac{1}{4}x^{-4} + \frac{1}{4}x^{-6} \\
+                    \implies& -3x^{-2} + \frac{1}{4}x^{-4} + \frac{1}{4}x^{-6} = 0 \\
+                    \implies& -3x^4 + \frac{1}{4}x^2 + \frac{1}{4} = 0 \\
+                    \implies& \left(x^2\right)^2 - 2\frac{1}{24}x^2 + \left(\frac{1}{24}\right)^2 - \left(\frac{7}{24}\right)^2 = 0 \\
+                    \implies& \left(x^2 - \frac{1}{24}\right)^2 - \left(\frac{7}{24}\right)^2 = 0 \\
+                    \implies& \left(x^2 - \frac{1}{3}\right)\left(x^2 + \frac{1}{4}\right) = 0 \\
+                    \implies& \left(x - \frac{\sqrt{3}}{3}\right)\left(x + \frac{\sqrt{3}}{3}\right)\left(x^2 + \frac{1}{4}\right) = 0
+                \end{align*}
+                Ainsi l'unique solution strictement positive est $x = \frac{\sqrt{3}}{3}$, donc la longueur est minimisée lorsque $P = \left(\frac{\sqrt{3}}{3}, \frac{1}{3}\right)$ et vaut $L\left(\frac{\sqrt{3}}{3}\right) \simeq 3.34$.
+
+            \newpage
+
+            \item La longueur d'un arc de parabole inscrit dans un disque de rayon 1 peut-elle excéder 4 ?
+
+                \begin{figure}[h]
+                    \centering
+                    \begin{tikzpicture}[scale=1.5]
+                        \begin{axis}[
+                            axis lines=center,
+                            xlabel={$x$}, ylabel={$y$},
+                            xtick={0}, ytick={0, 1},
+                            grid=major,
+                            axis equal,
+                            xmin=-2.25, xmax=2.25,
+                            ymin=1, ymax=1.75
+                        ]
+                            \addplot[
+                                domain=0:360, 
+                                samples=100, 
+                                very thick, red
+                            ]
+                            ({cos(x)}, {1 + sin(x)});
+    
+                            \addplot[
+                                domain=-1.75:1.75, 
+                                samples=100, 
+                                thick, teal
+                            ]
+                            {1/2*x^2};
+                            \node[text=teal] at (axis cs:1.8,1.65) {\tiny $y$=$\frac{x^2}{2}$};
+                            \addplot[
+                                domain=-2:2, 
+                                samples=100, 
+                                thick, teal
+                            ]
+                            {1/4*x^2};
+                            \node[text=teal] at (axis cs:1.9,1.25) {\tiny $y$=$kx^2$};
+                            \node[text=teal] at (axis cs:1.85,1.05) {\tiny 0<$k$<1/2};
+                            
+                            \addplot[
+                                domain=-0.9:0.9, 
+                                samples=100, 
+                                thick, teal
+                            ]
+                            {3*x^2};
+                            \addplot[
+                                domain=-0.75:0.75, 
+                                samples=100, 
+                                very thick, blue!80!black
+                            ]
+                            {3*x^2};
+    
+                            
+                            \addplot[
+                                domain=-0.5:0.5, 
+                                samples=100, 
+                                thick, teal
+                            ]
+                            {10*x^2};
+                            \addplot[
+                                domain=-0.436:0.436, 
+                                samples=100, 
+                                very thick, blue!80!black
+                            ]
+                            {10*x^2};
+                            \node[text=teal] at (axis cs:0.75,2.8) {\tiny $y$=$kx^2$};
+                            \node[text=teal] at (axis cs:0.75,2.6) {\tiny $k$>1/2};
+    
+                            \node[text=blue!80!black] at (axis cs:0.2,1.6) {\tiny $L(k)$};
+                            \node at (axis cs:-0.15,2.10) {$2$};
+                            \node at (axis cs:-0.15,-0.15) {\small 0};
+                        \end{axis}
+                    \end{tikzpicture}
+                    \label{fig:cercle_parabole}
+                \end{figure}
+
+                Sans perte de généralité, on prend le cercle d'équation $\mathscr{C} : x^2 + (y - 1)^2 = 1$ et la parabole d'équation $\mathscr{P} : y = kx^2$ avec $k > \frac{1}{2}$ (si la parabole n'est pas tangente au cercle, on peut toujours \og l'enfoncer \fg{} pour augmenter la longueur de l'arc étudié). $\mathscr{P}$ est tangente à $\mathscr{C}$ en $(0,0)$ et l'intersecte en $\left(\pm\frac{\sqrt{2k-1}}{k}, \frac{2k-1}{k}\right)$. La longueur à maximiser en fonction de k est alors :
+                \begin{align*}
+                    L(k) &= 2\int_0^{\frac{\sqrt{2k-1}}{k}} \sqrt{4k^2t^2 + 1} dt \\
+                    &= \frac{1}{k} \int_0^{2\sqrt{2k-1}} \sqrt{1+ u^2} du &(u = 2kt)
+                \end{align*}
+                Contrairement à l'exemple précédent, on ne va pas ici étudier la dérivée de $L$ ce qui donnerait lieu à des calculs lourds et dispensables pour répondre à la question. On manipule directement $L(k)$,
+        
+                \begin{align*}
+                    L(k) &= \frac{1}{k} \int_0^{2\sqrt{2k-1}} \sqrt{1+ u^2} du \\
+                    &= \frac{1}{k} \int_0^{2\sqrt{2k-1}} \left(\sqrt{1+ u^2} - u\right) du + \frac{1}{k}\int_0^{2\sqrt{2k-1}} u du \\
+                    &= \frac{1}{k} \int_0^{2\sqrt{2k-1}} \frac{du}{\left(\sqrt{1+ u^2} + u\right)} + \frac{4(2k - 1)}{2k} \\
+                    &= \frac{1}{k} \int_0^{2\sqrt{2k-1}} \frac{du}{\left(\sqrt{1+ u^2} + u\right)} + 4 - \frac{2}{k} \\
+                    &= 4 + \frac{1}{k}(I(k) - 2)
+                \end{align*}
+        
+                On en déduit que $L(k) > 4 \iff I(k) > 2$, or on vérifie aisément que $\lim_{k \to +\infty}I(k) = +\infty$, il existe donc $k_0 > \frac{1}{2}$ tel que $L(k_0) > 4$, de plus, $\forall k > k_0, L(k) > 4$. Cette conclusion défie quelque peu notre première intuition car on remarque directement sur le graphique que $\lim_{k \to +\infty} L(k) = 4$ et $L$ est croissante dans un premier temps, une étude plus approfondie nous permet néanmoins d'infirmer notre intuition fausse.
+
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=0.7\textwidth]{images/graphe_echelle_1.png}
+                \caption{$L(k)$ pour $k \in \left]\frac{1}{2}; 10\right]$}
+                \label{fig:parabole_cercle_echelle_1}
+            \end{figure}
+            \newpage
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=0.7\textwidth]{images/graphe_echelle_2.png}
+                \caption{$L(k)$ pour $k \in \left]\frac{1}{2}; 300\right]$}
+                \label{fig:parabole_cercle_echelle_2}
+            \end{figure}
+        \end{enumerate}
+\section{Ellipse}
+    \begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[scale=1.1]
+        % Configuration du repère
+        \begin{axis}[
+            axis equal,
+            axis lines = middle, % Place les axes au centre
+            xlabel = $x$, ylabel = $y$, % Étiquettes des axes
+            xmin = -4, xmax = 4, % Limites de l'axe des x
+            ymin = -3, ymax = 3, % Limites de l'axe des y
+            grid = both, % Ajoute une grille
+            xticklabels=\empty,   % Supprime les nombres des graduations sur l'axe x
+            yticklabels=\empty    % Supprime les nombres des graduations sur l'axe y
+        ]
+
+            % Tracé des points A et B
+            \addplot[
+                only marks, % Ne trace que les points
+                mark=*,
+                mark options={fill=black}
+            ] coordinates {(2,0) (-2,0) (1,-1.35)}; % Points F, F' et M
+
+            % Ellipse
+            \draw[thick] (0,0) ellipse [x radius=3cm, y radius=1.2cm];
+
+            % Étiquettes des points
+            \node at (axis cs:2,0) [above right] {$F$};
+            \node at (axis cs:-2,0) [above left] {$F'$};
+            \node[text=blue] at (axis cs:-1.8,1.8) {$a$};
+            \node[text=red] at (axis cs:-3.8,0.7) {$b$};
+            \node[text=green] at (axis cs:1,0.3) {$c$};
+            \node at (axis cs:1,-1.35) [below right] {$M$};
+
+            % Tracé des segment
+            \addplot[
+                thick, % Épaisseur du trait
+                dashed,
+                color=blue
+            ] coordinates {(0,1.37) (-3.5,1.37)};
+
+            \addplot[
+                thick, % Épaisseur du trait
+                dashed,
+                color=red
+            ] coordinates {(-3.5,0) (-3.5,1.37)};
+
+            \addplot[
+                thick, % Épaisseur du trait
+                color=green
+            ] coordinates {(0,0) (2,0)};
+
+            \addplot[
+                thick, % Épaisseur du trait
+                color=black,
+                dashed
+            ] coordinates {(-2,0) (1,-1.35)};
+
+            \addplot[
+                thick, % Épaisseur du trait
+                color=black,
+                dashed
+            ] coordinates {(2,0) (1,-1.35)};
+
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Ellipse}
+    \label{fig:ellipse}
+    \end{figure}
+
+    \subsection{Périmètre d'une ellipse}
+
+        Le calcul d'une formule pour le périmètre d'une ellipse est un problème ancien et difficile mais que l'on peut résoudre assez facilement à l'aide des nouveaux outils à notre disposition.
+
+        \vspace{0.5cm}
+
+        \begin{propertybox}[frametitle={Proposition 2 : Périmètre d'une ellipse}]
+            Étant donné une ellipse $\mathcal{E}$ de \textbf{demi-grand axe} $a$ et d'\textbf{excentricité} $k$, le périmètre de $\mathcal{E}$ est \[P = 4a \int_{0}^{1} \frac{\sqrt{1 - k^2u^2}}{\sqrt{1 - u^2}} du\].
+        \end{propertybox}
+
+        \begin{proof}
+            Soit une ellipse $\mathcal{E}$ de demi-grand axe $a$ et de demi-petit axe $b$. On suppose sans perte de généralité que $\mathcal{E}$ est centrée en 0 et que ses foyers F et F' sont sur l'axe des abscisses, on peut toujours se ramener à cette situation par des rotations et translations ce qui n'a pas d'influence sur le périmètre. 
+            
+            On note $M = (x, y)$ et $c$ la distance entre les foyers et le centre l'ellipse d'où $F = (c, 0)$ et $F' = (-c, 0)$. L'équation bifocale de $\mathcal{E}$ est $M \in \mathcal{E} \iff MF + MF' = 2a$. On a donc,
+
+            \begin{align*}
+            & MF + MF' = 2a\\
+            \implies &\sqrt{(x - c)^2 + y^2} + \sqrt{(x + c)^2 + y^2} = 2a \\
+            \implies &\sqrt{(x + c)^2 + y^2} = 2a - \sqrt{(x - c)^2 + y^2} \\
+            \implies & (x + c)^2 + y^2 = 4a^2 -4a\sqrt{(x - c)^2 + y^2} + (x - c)^2 + y^2 \\
+            \implies & (x + c)^2 - (x - c)^2 = 4a^2 - 4a\sqrt{(x - c)^2 + y^2} \\
+            \implies & 4cx - 4a^2 = -4a\sqrt{(x - c)^2 + y^2} \\
+            \implies & a^2[(x-c)^2 + y^2] = c^2x^2 - 2a^2cx + a^4 \\
+            \implies & a^2x^2 - 2a^2cx + a^2y^2  - c^2x^2 + 2a^2cx = a^4 - a^2c^2 \\
+            \implies & (a^2 - c^2)x^2 + a^2y^2 = a^2(a^2  - c^2) \\
+            \implies & b^2x^2 + a^2y^2 = a^2b^2 \\
+            \implies &\frac{x^2}{a^2} + \frac{y^2}{b^2} = 1 
+            \end{align*}
+
+            On peut maintenant exprimer $y$ en fonction de $x$ pour $x \in [0; a]$, on obtient $y = b \sqrt{1 - \frac{x^2}{a^2}}$, on peut maintenant utiliser la formule adaptée et multiplier le résultat par 4 pour obtenir le périmètre de l'ellipse,
+
+            \begin{align*}
+                P &= 4 \int_0^a \sqrt{\left(\frac{d}{dx} \left(b \sqrt{1 - \frac{x^2}{a^2}}\right)\right)^2 + 1} dx \\
+                &= 4\int_{0}^{a}\sqrt{\frac{b^2x^2}{a^4\left(1-\frac{x^2}{a^2}\right)} + 1} dx \\
+                &= 4a\int_{0}^{1} \sqrt{\frac{b^2u^2}{a^2(1 - u^2)} + 1} du &\left(u = \frac{x}{a}\right) \\
+                &= 4a \int_{0}^{1} \sqrt{\frac{b^2u^2 + a^2 - a^2u^2}{a^2(1 - u^2)}} du \\
+                &= 4a \int_{0}^{1} \sqrt{\frac{a^2 - u^2(a^2 - b^2)}{a^2(1 - u^2)}} du \\
+                &= 4a \int_{0}^{1} \sqrt{\frac{1 - u^2 \cdot \frac{a^2 - b^2}{a^2}}{1 - u^2}} du \\
+                &= 4a \int_{0}^{1} \frac{\sqrt{1 - k^2u^2}}{\sqrt{1 - u^2}} du &\left(k = \frac{c}{a}\right)
+            \end{align*}
+        \end{proof}
+
+        \remarque{Cette intégrale est souvent réécrite, en posant $u = \sin(\theta)$, sous la forme $E(k) = \int_0^{\frac{\pi}{2}} \sqrt{1 - k^2\sin^2(\theta)} d\theta$. Il s'agit de l'intégrale elliptique complète de deuxième espèce. La recherche de séries convergentes permettant d'approcher les valeurs des intégrales elliptiques a été un problème traité par de nombreux mathématiciens au cours des derniers siècles. Des résultats puissants ont ainsi été trouvés, l'algorithme de la moyenne arithmético-géométrique, par exemple, a une vitesse de convergence quadratique\cite{integrales-elliptiques-agm}.}
+    
+    \subsection{Orbite de la Terre}
+
+        Une application simple du résultat précédent est le calcul de la longueur de l'orbite de la Terre autour du Soleil, en effet la Terre ne décrit pas un cercle parfait mais plutôt une ellipse. On aura besoin pour ce calcul du demi-grand axe et de l'excentricité, nous utiliserons les valeurs $a = 149,6 \cdot 10^6$ km et $e = 0,01671123$\cite{wikipedia-orbite-terre}. On a alors :
+    
+        \begin{align*}
+            P &= 4 \cdot 149,6 \cdot 10^6 \int_{0}^{1} \frac{\sqrt{1 + u^2 \cdot 0,01671123^2}}{\sqrt{1 - u^2}} du \\
+            &\simeq 940,0 \cdot 10^6 \text{ km}
+        \end{align*}
+
+        Ce résultat correspond aux observations scientifiques. Cependant, l'excentricité de l'orbite de la Terre est très faible, l'ellipse décrite est en fait extrêmement proche d'un cercle, avec ce modèle on obtiendrait un périmètre $P = 2\pi \cdot 149,6 \cdot 10^6 \simeq 939,96 \cdot 10^6  \text{ km}$.
+
+    \subsection{Autour de l'ellipse}
+
+        Outre le calcul du périmètre de l'ellipse, de nombreux résultats plus spécifiques en lien avec l'ellipse nous sont désormais accessibles.
+
+        \vspace{0.5cm}
+
+        \begin{propertybox}[frametitle={Proposition 3 : Ellipse de périmètre minimal}]
+            Soit $S > 0$, l'ellipse pleine d'aire S de \textbf{périmètre minimal} est le \textbf{disque} de rayon $\sqrt{\frac{S}{\pi}}$.
+        \end{propertybox}
+
+        \begin{proof}
+            Soit $S>0$, si $a,b$ désignent les longueurs des demi-axes de l'ellipse $\mathscr{E}$ d'aire $S$, alors, dans un repère orthonormé rapporté aux axes de l'ellipse, $\mathscr{E}$ a pour représentation paramétrique :
+            \begin{align*}
+                \begin{cases}
+                    x(t) = a\cos(t) \\
+                    y(t) = b\sin(t)
+                \end{cases}\quad \text{avec } t \in [0,2\pi]
+            \end{align*}
+            
+            L'aire $S$ et le périmètre $P$ de $\mathscr{E}$ sont donnés par
+            \begin{align*}
+                S = \pi a b \text{ et } P = \int _0^{2\pi} \sqrt{a^2\sin^2(t) +b^2\cos^2(t)}dt
+            \end{align*}
+            Par concavité de $v \mapsto \sqrt{v}$ on peut écrire
+            \begin{align*}
+               \sqrt{a^2\sin^2(t) +b^2\cos^2(t)} \geq a\sin^2(t)+b(1-\sin^2(t))
+            \end{align*}
+            Si bien que
+            \begin{align*}
+                P \geq \int_0^{2\pi} (a\sin^2(t)+b\cos^2(t))dt = \pi(a+b)
+            \end{align*}
+            Alors, l'inégalité arithmético-géométrique et son cas d'égalité donnent
+            \begin{align*}
+                P \geq \pi(a+b)\geq2\pi\sqrt{ab}=2\sqrt{\pi S}
+            \end{align*}
+            avec égalité si et seulement si $a=b=\sqrt{\frac{S}{\pi}}$.
+            
+            Conclusion: Parmi toutes les ellipses d'aire $S>0$ donnée, c'est le disque de rayon $\sqrt{\frac{S}{\pi}}$ qui possède le périmètre minimal.
+        \end{proof}
+
+\section{Géodésiques}
+
+    \subsection{Plus court chemin}
+
+        \vspace{0.5cm}
+
+        \begin{theorembox}[frametitle={Théorème 3 : Plus court chemin dans $\mathbb{R}^d$}]
+        \label{theorem:ligne-droite}
+            Le \textbf{plus court chemin} dans $\mathbb{R}^d$ entre deux points distincts $A$ et $B$ est la \textbf{ligne droite}.
+        \end{theorembox}
+
+        \begin{proof}
+            On note $L_{min} = \inf L(\gamma)$ pour tout arc régulier $\gamma$ reliant $A$ et $B$. On suppose, sans perte de généralité, que $\gamma : [0; 1] \to \mathbb{R}^d$ (un représentant de l'arc géométrique associé possède une telle paramétrisation). On a donc $\gamma(0) = A$ et $\gamma(1) = B$.
+
+            Comme le segment reliant A et B, paramétré par $\gamma_0(t) = (1-t)A + tB$, a pour longueur $L(\gamma_0) = \int_0^1 \norm{\gamma_0'(t)} dt = \int_0^1 \norm{B - A} dt = \norm{B - A}$, on a $L_{min} \leq \norm{B - A}$. Soit $\gamma \in C^1([0;1], \mathbb{R}^d)$ tel que $\gamma(0) = A$ et $\gamma(1) = B$. On a
+            \begin{align*}
+                \norm{B - A}^2 &= \dotproduct{B - A}{B - A} \\
+                &= \dotproduct{B - A}{\gamma(1) - \gamma(0)}\\
+                &= \dotproduct{B - A}{\int_0^1 \gamma'(t)dt} &\text{(théorème fondamental de l'analyse)}\\
+                &= \int_0^1 \dotproduct{B - A}{\gamma'(t)} dt &\text{(bilinéarité du produit scalaire)}\\
+                &\leq \int_0^1 \norm{B - A}\norm{\gamma'(t)} dt &\text{(inégalité de Cauchy-Schwarz)}\\ 
+                &\leq \norm{B - A}L(\gamma)\\
+            \end{align*}
+
+            $A$ et $B$ étant distincts, $\norm{B - A} > 0$ donc $L(\gamma) \geq \norm{B - A}$. De plus, on a égalité pour Cauchy-Schwarz si, et seulement si, $B - A$ et $\gamma'(t)$ sont liés, c'est-à-dire qu'il existe $g : [0; 1] \to \mathbb{R}$ telle que $\forall t \in [0; 1], \gamma'(t) = g(t)(B - A)$, en intégrant $\gamma(t) = tG(t)(B - A) + k$, or $\gamma(0) = A$ d'où $\gamma(t) = (1 - tG(t))A + tG(t)B$. En posant $\tilde{g}(t) = tG(t)$, on a $\gamma(t) = (1 - \tilde{g}(t))A + \tilde{g}(t)B$. On retrouve bien une autre paramétrisation du même segment $[AB]$, $\gamma$ et $\gamma_0$ représentent le même arc géométrique. 
+            
+            Ainsi $L_{min} = \norm{B - A}$ et la ligne droite est bien le chemin le plus court entre deux points distincts dans $\mathbb{R}^d$.
+        \end{proof}
+
+        \newpage
+        \remarque{La définition de la longueur d'un arc repose en partie sur l'assomption présupposé que le chemin le plus court entre 2 points distincts est bien la ligne droite afin de relier ces calculs à notre compréhension intuitive de la longueur. Retrouver ce résultat par le calcul n'est donc pas étonnant mais il témoigne d'une certaine cohérence dans la théorie que l'on élabore.}
+        
+        Le plus court chemin associé à la norme euclidienne est la ligne droite. Cependant, l'unicité n'est pas vérifiée si l'on utilise une distance. Par exemple, en utilisant la distance de Manhattan, on aboutit à plusieurs plus courts chemins distincts entre deux points :
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.5\textwidth]{images/manhattan.png}
+            \caption{Distance de Manhattan}
+            \label{fig:manhattan}
+        \end{figure}
+        %Une géodésique est une généralisation de la ligne droite sur un espace euclidien à une %surface, c'est-à-dire un ensemble de points sur lequel il est possible de se repérer à %l'aide de seulement deux coordonnées réelles. Ainsi, une géodésique est un chemin %entre deux points qui minimise la distance. 
+        Une géodésique est une courbe minimisant partout la distance localement, on peut voir les géodésiques comme une généralisation de la ligne droite dans le plan à des surfaces, par exemple sur une sphère.
+
+        \vspace{0.5cm}
+
+        \begin{definitionbox}[frametitle={Définition 6 : Géodésique}]
+            une courbe paramétrée $\gamma: [0,1] \mapsto (E,d)$ vers l'\textbf{espace métrique} $(E,d)$ est une \textbf{géodésique} si:
+            \begin{align*}
+                \exists \eta \geq 0 , \forall t \in [0,1],& \ \exists J \text{ voisinage de } t \text{ dans } [0,1] \text{, } \forall t_1,t_2 \in [0,1] \textbf{ :} \\
+                &\ d(\gamma(t_1),\gamma(t_2)) = \eta|t_1 - t_2|
+            \end{align*}
+        \end{definitionbox}   
+
+        \vspace{0.5cm}
+
+        \remarque{En général, il existe une paramétrisation \og naturelle \fg{} telle que $\eta = 1$ et donc $d(\gamma(t_1),\gamma(t_2)) = |t_1 - t_2|$.}
+
+        \begin{theorembox}[frametitle=Théorème 4 : Géodésiques de la sphère]
+            Le \textbf{plus court chemin} entre deux points distincts sur une sphère de $\mathbb{R}^3$ est un \textbf{méridien}.
+        \end{theorembox}
+        
+        \vspace{0.5cm}
+        
+        \begin{proof}
+            Soit $(E,\norm{.})$ un espace vectoriel normé. \\
+            Soit $S(0_{\mathbb{R}^3}, \rho)$ une sphère centrée en l'origine du repère et de rayon $\rho > 0$. Pour plus de simplicité, on va se repérer en coordonnées sphériques, ainsi, un point $M = (\rho, \theta, \varphi)$ sur $S$ a pour coordonnées cartésiennes :
+            \begin{align*}
+                M = \begin{pmatrix}
+                    \rho\sin(\varphi)\cos(\theta)\\
+                    \rho\sin(\varphi)\sin(\theta)\\
+                    \rho\cos(\varphi)
+                \end{pmatrix}
+                \quad \text{avec } 0 \leq \theta \leq \pi \text{ et } 0 \leq \varphi \leq \pi.
+            \end{align*}
+            
+
+            \begin{figure}[H]
+                \centering
+                \includegraphics[width=0.6\textwidth]{images/coordonnees_spheriques.png}
+                \caption{Coordonnées sphériques}
+                \label{fig:coordonnes_spheriques}
+            \end{figure}
+
+
+            Soient $A$ et $B$ deux points sur $S$, on suppose quitte à faire tourner la sphère que $A$ est le pôle nord, c'est-à-dire $A = (\rho, 0, 0)$ et, en faisant éventuellement tourner la sphère autour de l'axe $z$,$B = (\rho, 0, \varphi_1)$.
+
+            Un chemin reliant $A$ à $B$ est alors une courbe $\gamma$ qui s'exprime en coordonnées cartésiennes par :
+            \begin{align*}
+                \gamma(t) = 
+                    \begin{pmatrix}
+                        \rho\sin(\varphi(t))\cos(\theta(t))\\
+                        \rho\sin(\varphi(t))\sin(\theta(t))\\
+                        \rho\cos(\varphi(t))
+                    \end{pmatrix}
+            \end{align*}
+
+            on suppose, à un changement de paramétrisation près, que $t \in [0;1]$. On a donc $\gamma(0) = A$ et $\gamma(1) = B$.
+            \begin{figure}[H]
+                \centering
+                \includegraphics[width=0.5\textwidth]{images/sphere.png}
+                \caption{Géodésique sur la sphère}
+                \label{fig:sphere}
+            \end{figure}
+            
+            On peut alors calculer la longueur de cet arc qui est $C^1$,
+            \begin{align*}
+                L(\gamma) &= \int_0^1 \norm{\gamma'(t)}dt \\
+                &= \rho \int_0^1 \sqrt{{\theta'}^2(t)\sin^2(\varphi(t)) + {\varphi'}^2(t)}
+            \end{align*}
+
+            Or, $\forall t \in [0; 1], {\theta'}^2(t)\sin^2(\varphi(t)) \geq 0 \implies {\theta'}^2(t)\sin^2(\varphi(t)) + {\varphi'}^2(t) \geq {\varphi'}^2(t)$. D'où $L(\gamma) \geq \rho \int_0^1 \varphi'(t) dt = \rho (\varphi(1) - \varphi(0)) = \rho\varphi_1$.
+
+            Observons de plus qu'on a égalité si, et seulement si, ${\theta'}^2(t)\sin^2(\varphi(t)) = 0$. Or, $\sin^2(\varphi(t)) = 0$ est uniquement vérifié aux pôles donc ${\theta'}^2(t) = 0$ d'où $\theta(t) = \theta(1) = 0$. Le chemin le plus court est donc bien le méridien passant par $A$ et $B$.
+        \end{proof}
+
+        \remarque{Ce résultat explique les trajectoires courbées des vols d'avion lorsqu'on les représente sur un planisphère. Ils empruntent les méridiens qu'on appelle routes orthodromiques, en opposition aux route loxodromiques, celles correspondant à une ligne droite sur un planisphère.}
+
+    \subsection{Plus long chemin}
+
+        On peut se poser la question inverse, quel est le chemin le plus long reliant deux points distincts du plan. Bien sûr, sans hypothèse supplémentaire la question n'a pas de réponse précise puisqu'on peut toujours faire un détour supplémentaire pour allonger la longueur d'un chemin allant de A à B. Cependant, si l'on s'intéresse uniquement aux chemins pour lesquels on ne fait que se rapprocher de la destination.
+
+        \begin{figure}[H]
+        \centering
+            \begin{tikzpicture}[scale=1.3]
+                \begin{axis}[
+                    view={120}{30}, % Angle de vue
+                    axis lines=center,
+                    xlabel={$x$}, ylabel={$y$}, zlabel={$z$},
+                    xtick={0,2}, ytick={0,1}, ztick={0,4},
+                    grid=major
+                ]
+                    % Chemin direct (ligne droite)
+                    \addplot3[
+                        thick, blue, -stealth,
+                        domain=0:1, samples=10
+                    ] 
+                    ({2*x}, {x}, {4*x});
+            
+                    % Chemin en ligne brisée
+                    \addplot3[
+                        thick, red, mark=*,
+                    ] coordinates {
+                        (0,0,0) (2,0,0) (2,1,0) (2,1,4)
+                    };
+                \end{axis}
+            \end{tikzpicture}
+        \caption{Un plus long chemin reliant $(0, 0, 0)$ et $(2, 1, 4)$ dans $\mathbb{R}^3$}
+        \label{fig:long-chemin}
+        \end{figure}
+
+        \vspace{0.5cm}
+
+        \begin{theorembox}[frametitle={Proposition 4 : Plus long chemin dans $\mathbb{R}^d$}]
+            Si $\gamma = ([a; b], f)$ est un arc paramétré dans $\mathbb{R}^d$ tel que chaque composante de $f$ est monotone, alors $\gamma$ est rectifiable et $L(\gamma) \leq \sum_{k=1}^d |f_k(b) - f_k(a)|$.
+        \end{theorembox}
+
+        \begin{proof}
+            Soit $\gamma = ([a; b], f)$ un arc paramétré dans $\mathbb{R}^d$ tel que chaque composante de $f$ est monotone, c'est-à-dire que pour tout $k \in \llbracket 1, d \llbracket$, $f_k$ est monotone. Soit $\sigma = \{a = t_0, \dots, t_n = b\}$ une subdivision de $[a;b]$, on a
+
+            \begin{align*}
+                l(\sigma, f) &= \sum_{i=1}^n \norm{f(t_i) - f(t_{i - 1})} \\
+                &= \sum_{i=1}^n \sqrt{\sum_{k=1}^d (f_k(t_i)  - f_k(t_{i - 1}))^2} \\
+                &\leq \sum_{i=1}^n \sum_{k=1}^d |f_k(t_i)  - f_k(t_{i - 1})| \\
+                &\leq \sum_{k=1}^d \sum_{i=1}^n |f_k(t_i)  - f_k(t_{i - 1})| \\
+                &\leq \sum_{k=1}^d |f_k(t_n) - f_k(t_0)| &\text{(monotonie donne un télescopage)} \\
+                &\leq \sum_{k=1}^d |f_k(b) - f_k(a)|
+            \end{align*}
+
+            Ainsi $\gamma$ est rectifiable et $L(\gamma) \leq \sum_{k=1}^n |f_k(b) - f_k(a)|$.
+        \end{proof}
+
+        \remarque{Le plus long chemin de longueur $\sum_{k=1}^n |f_k(b) - f_k(a)|$ n'est pas unique, toute ligne brisée suivant les axes du repère atteint cette longueur maximale.}
+
+        \remarque{On peut appliquer ce résultat aux graphes des fonctions $f \in C^0([0;1], [0; 1])$ croissantes pour obtenir l'inégalité $L(G_f) \leq 2$. On ne manquera cependant pas d'observer que les plus longs chemins décrits plus haut ne peuvent correspondre à des graphes de fonctions étant donné qu'ils comportent des sections verticales. Il existe néanmoins des fonctions continues croissantes dont le graphe vérifie le cas d'égalité\cite{wikipedia-escalier-de-cantor}.}
+
+        \vspace{0.5cm}
+
+        \begin{propertybox}[frametitle={Proposition 5 : Graphes de fonctions convexes}]
+            Soient $f, g \in C^1([a, b], \mathbb{R})$ convexes telles que 
+            \begin{align*}
+                f(a) &= g(a) \\
+                f(b) &= g(b) \\
+                f(t) &\geq g(t) \quad \forall t \in [a, b]
+            \end{align*}
+
+            Alors, $L(G_f) \leq L(G_g)$.
+        \end{propertybox}
+
+        \begin{proof}
+            \begin{figure}[h]
+                \centering
+                    \begin{tikzpicture}[scale=1.3]
+                        \begin{axis}[
+                            axis lines=center,
+                            xlabel={$x$}, ylabel={$y$},
+                            xtick={0}, ytick={0},
+                            grid=major,
+                            axis equal,
+                            xmin=-0.5, xmax=5,
+                            ymin=-0.5, ymax=5
+                        ]
+
+                        \addplot[
+                            domain=0.378:4.621, 
+                            samples=100, 
+                            thick, red
+                        ]
+                        {0.5*((x-3)^2)+1};
+
+                        \addplot[
+                            domain=0.378:4.621, 
+                            samples=100, 
+                            thick, black
+                        ]
+                        {0.25*(x-3.5)^2+2};
+
+                        \addplot[
+                            domain=0:1, 
+                            samples=100, 
+                            thick, dashed, blue
+                        ] coordinates {(0.378,0) (0.378,4.435)};
+
+                        \addplot[
+                            domain=0:1, 
+                            samples=100, 
+                            thick, dashed, blue
+                        ] coordinates {(4.621,0) (4.621,2.314)};
+                        
+                        \node[text=red] at (axis cs:3,0.75) {$g$};
+                        \node[text=black] at (axis cs:3.5,2.30) {$f$};
+                        \node[text=black] at (axis cs:-0.25,-0.25) {$0$};
+                        \node[text=blue] at (axis cs:0.378,-0.25) {$a$};
+                        \node[text=blue] at (axis cs:4.621,-0.25) {$b$};
+                        \end{axis}
+                    \end{tikzpicture}
+                \label{fig:fonctions_convexes}
+            \end{figure}
+            
+            Soient $f, g$ de telles fonctions.
+            Soit $\psi(t)=\sqrt{1+t^2}$, comme $\psi''(t)=(1+t^2)^{-\frac{3}{2}} > 0$, $\psi$ est convexe sur $\mathbb{R}$ et par Taylor-Lagrange :
+            \begin{align*}
+                \psi(t)=\psi(s)+(t-s)\psi'(s)+\frac{(t-s)^2}{2}\psi''(\zeta) \geq \psi(s) +(t-s)\psi'(s), \ \ \forall s,t\in \mathbb{R}
+            \end{align*}
+            avec égalité si et seulement si $t=a$. En particulier, pour tout $t \in [a,b]$ :
+            \begin{align*}
+                \sqrt{1+g'(t)^2)} \geq \sqrt{1+f'(t)^2} + (g'(t)-f'(t))\psi'(f'(t))
+            \end{align*}
+            et si on intègre ces inégalités :
+            \begin{align*}
+                \int_a^b \sqrt{1+g'(t)^2} dt \geq \int_a^b \sqrt{1+f'(t)^2} dt + \int_a^b (g'(t)-f'(t))\psi'(f'(t))\ dt
+            \end{align*}
+            avec égalité si et seulement si $f'=g'$, or $f(a) =g(a)$ donc cela est équivalent à $f=g$. Il suffit alors de montrer que 
+            \begin{align*}
+                I = \int_a^b (g'(t)-f'(t))\psi'(f'(t))\ dt \geq 0
+            \end{align*}
+            C'est facile si on suppose $f$ de classe $C^2$ sur $[a,b]$, en effet on peut alors faire une intégration par parties :
+            \begin{align*}
+                I &=\left[(g(t)-f(t))\psi'(f'(t))\right]_a^b-\int_a^b (g(t)-f(t))\psi'(f'(t)))'\ dt \\
+                &= 0-\int_a^b (g(t)-f(t))\psi''(f'(t))f''(t)\ dt \geq 0
+            \end{align*}
+            car $g-f\leq0,\psi'' > 0$ et $f'' \geq0$. Si $f$ n'est pas de classe $C^2$, on peut appliquer le second théorème de la moyenne : il existe $c \in [a,b]$ tel que
+            \begin{align*}
+                I &= \psi'(f'(a))\int_a^c (g'(t)-f'(t))\ dt + \psi'(f'(b)) \int_c^b (g'(t)-f'(t))\ dt \\
+                &=\left[\psi'(f'(b))-\psi'(f'(a))\right](f(c)-g(c))\geq 0
+            \end{align*}
+            car $f \geq g$ et $\psi' \circ f'$ croissante sur $[a,b]$ comme $f$ et $\psi$ sont convexes. Ainsi,
+            \begin{align*}
+                &\int_a^b \sqrt{1 + f'(t)} dt \leq \int_a^b \sqrt{1 + g'(t)} dt \\
+                \implies& L(G_f) \leq L(G_g)
+            \end{align*}
+        \end{proof}
+
+    \begin{thebibliography}{9}
+
+        \bibitem{lassere-longueur-arc} Patrice Lassère, \emph{Propriétés métriques des courbes}, (2020).
+
+        \bibitem{integrales-elliptiques-agm} Jimmy Roussel, \emph{Intégrales elliptiques complètes},  
+        femto-physique. Disponible à l'adresse :  
+        \url{https://femto-physique.fr/analyse-numerique/integrales-elliptiques.php}, consulté le 27 février 2025.
+    
+        \bibitem{wikipedia-longueur-arc} contributeurs Wikipédia, \emph{Longueur d'un arc},  
+        Wikipédia, L'encyclopédie libre. Disponible à l'adresse :  
+        \url{https://fr.wikipedia.org/wiki/Longueur_d'un_arc}, consulté le 27 février 2025.
+
+        \bibitem{wikipedia-ellipse} contributeurs Wikipédia, \emph{Ellipse (mathématiques)},  
+        Wikipédia, L'encyclopédie libre. Disponible à l'adresse :  
+        \url{https://fr.wikipedia.org/wiki/Ellipse_(mathématiques)}, consulté le 27 février 2025.
+
+        \bibitem{wikipedia-integrales-elliptiques} contributeurs Wikipédia, \emph{Intégrale elliptique},  
+        Wikipédia, L'encyclopédie libre. Disponible à l'adresse :  
+        \url{https://fr.wikipedia.org/wiki/Intégrale_elliptique}, consulté le 27 février 2025.
+
+        \bibitem{wikipedia-orbite-terre} contributeurs Wikipédia, \emph{Orbite de la Terre},  
+        Wikipédia, L'encyclopédie libre. Disponible à l'adresse :  
+        \url{https://fr.wikipedia.org/wiki/Orbite_de_la_Terre}, consulté le 27 février 2025.
+
+        \bibitem{wikipedia-geodesique} contributeurs Wikipédia, \emph{Géodésique},  
+        Wikipédia, L'encyclopédie libre. Disponible à l'adresse :  
+        \url{https://fr.wikipedia.org/wiki/Géodésique}, consulté le 16 mars 2025.
+
+        \bibitem{wikipedia-fonction_beta} contributeurs Wikipédia, \emph{Fonction Bêta},  
+        Wikipédia, L'encyclopédie libre. Disponible à l'adresse :  
+        \url{https://fr.wikipedia.org/wiki/Fonction_bêta}, consulté le 16 mars 2025.
+
+        \bibitem{wikipedia-fonction_gamma} contributeurs Wikipédia, \emph{Fonction Gamma},  
+        Wikipédia, L'encyclopédie libre. Disponible à l'adresse :  
+        \url{https://fr.wikipedia.org/wiki/Fonction_gamma}, consulté le 16 mars 2025.
+
+        \bibitem{wikipedia-lemniscate} contributeurs Wikipédia, \emph{Lemniscate de Bernoulli}, 
+        Wikipédia, L'encyclopédie libre. Disponible à l'adresse : 
+        \url{https://fr.wikipedia.org/wiki/Lemniscate_de_Bernoulli}, consulté le 7 mai 2025.
+
+        \bibitem{wikipedia-distance_de_manhattan} contributeurs Wikipédia, \emph{Distance de Manhattan},  
+        Wikipédia, L'encyclopédie libre. Disponible à l'adresse :  
+        \url{https://fr.wikipedia.org/wiki/Distance_de_Manhattan}, consulté le 8 mai 2025.
+
+        \bibitem{wikipedia-escalier-de-cantor} contributeurs Wikipédia, \emph{Escalier de Cantor}, 
+        Wikipédia, L'encyclopédie libre. Disponible à l'adresse :  
+        \url{https://fr.wikipedia.org/wiki/Escalier_de_Cantor}, consulté le 12 mai 2025.
+    \end{thebibliography}
+
+\end{document}
